@@ -2,7 +2,20 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
+app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
+
+// Generates a random string of length as specified in input
+const generateRandomString = (length) => {
+  const charBank = "abcdefghijklmnopqrstuvwxyz1234567890";
+  let randomString = "";
+
+  for (let i = 0; i < length; i++) {
+    // access random value of charBank with Math Random, and round down
+    randomString += charBank[Math.floor(charBank.length * (Math.random()))];
+  }
+  return randomString;
+};
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -14,6 +27,17 @@ app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
+
+// route to page for adding new URL
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
+// route to receive newURL data
+app.post("/urls", (req, res) => {
+  console.log(req.body);
+  res.send("Ok");
+})
 
 // route for specific URL page, showing long URL
 app.get("/urls/:id", (req, res) => {
