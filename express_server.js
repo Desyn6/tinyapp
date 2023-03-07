@@ -31,6 +31,13 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+// route to registration page
+app.get("/register", (req, res) => {
+  const username = req.cookies["username"];
+  const templateVars = { username }
+  res.render("user_registration", templateVars);
+});
+
 // route to page for adding new URL
 app.get("/urls/new", (req, res) => {
   const username = req.cookies["username"];
