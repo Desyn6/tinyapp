@@ -55,6 +55,20 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+// route to redirect to URL page for editing
+app.get("/urls/:id/edit", (req, res) => {
+  const shortURL = req.params.id;
+  res.redirect(`/urls/${shortURL}`);
+});
+
+// route to edit urls in urlDatabase
+app.post("/urls/:id", (req, res) => {
+  const newURL = req.body.longURL;
+  const shortURL = req.params.id;
+  urlDatabase[shortURL] = newURL;
+  res.redirect("/urls");
+});
+
 // route for specific URL page, showing long URL
 app.get("/urls/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
