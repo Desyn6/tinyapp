@@ -7,6 +7,11 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// route for url database
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
 // home route
 app.get("/", (req, res) => {
   res.send("Hello!");
