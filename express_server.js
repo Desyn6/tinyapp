@@ -15,6 +15,13 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+// route for specific URL page, showing long URL
+app.get("/urls/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id];
+  const templateVars = { id: req.params.id, longURL };
+  res.render("urls_show", templateVars);
+});
+
 // route for url database
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
