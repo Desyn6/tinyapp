@@ -46,7 +46,13 @@ app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
   const longURL = urlDatabase[shortURL];
   res.redirect(longURL);
-})
+});
+
+app.post("/urls/:id/delete", (req, res) => {
+  const shortURL = req.params.id;
+  delete urlDatabase[shortURL];
+  res.redirect("/urls");
+});
 
 // route for specific URL page, showing long URL
 app.get("/urls/:id", (req, res) => {
