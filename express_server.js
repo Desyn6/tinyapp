@@ -41,6 +41,13 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${newShortURL}`);
 });
 
+// route to POST login
+app.post("/login", (req, res) => {
+  const username = req.body.username;
+  res.cookie('username', username);
+  res.redirect("/urls");
+});
+
 // route to redirect /u/:id to long URL
 app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
