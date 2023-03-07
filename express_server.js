@@ -35,8 +35,17 @@ app.get("/urls/new", (req, res) => {
 
 // route to receive newURL data
 app.post("/urls", (req, res) => {
-  console.log(req.body);
-  res.send("Ok");
+  const longURL = req.body.longURL;
+  const newShortURL = generateRandomString(6);
+  urlDatabase[newShortURL] = longURL;
+  res.redirect(`/urls/${newShortURL}`);
+});
+
+// route to redirect /u/:id to long URL
+app.get("/u/:id", (req, res) => {
+  const shortURL = req.params.id;
+  const longURL = urlDatabase[shortURL];
+  res.redirect(longURL);
 })
 
 // route for specific URL page, showing long URL
