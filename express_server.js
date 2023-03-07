@@ -24,6 +24,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+};
+
 // route for main URL display
 app.get("/urls", (req, res) => {
   const username = req.cookies["username"];
@@ -36,6 +49,17 @@ app.get("/register", (req, res) => {
   const username = req.cookies["username"];
   const templateVars = { username }
   res.render("user_registration", templateVars);
+});
+
+// route to POST /register
+app.post("/register", (req, res) => {
+  const id = generateRandomString(6);
+  const email = req.body.email;
+  const password = req.body.password;
+  users[id] = { id, email, password};
+  res.cookie('user_id', id);
+  console.log(users);
+  res.redirect("/urls");  
 });
 
 // route to page for adding new URL
