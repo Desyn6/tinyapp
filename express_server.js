@@ -53,6 +53,13 @@ app.post("/login", (req, res) => {
   res.redirect("/urls");
 });
 
+// route to POST logout
+app.post("/logout", (req, res ) => {
+  const username = req.body.username;
+  res.clearCookie('username', username);
+  res.redirect("/urls");
+});
+
 // route to redirect /u/:id to long URL
 app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
