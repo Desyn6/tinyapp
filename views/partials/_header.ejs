@@ -20,6 +20,14 @@
         <li class="nav-item">
           <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
         </li>
+        <% if(!user) { %>
+        <li class="nav-item">
+          <a class="nav-item nav-link" href="/login">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-item nav-link" href="/register">Register</a>
+        </li>
+        <% } %>
       </ul>
     </div>
     <% if(user){ %>
@@ -27,17 +35,6 @@
       <a class="mr-2">Logged in as: <%= user.email %></a>
       <form action="/logout" method="POST">
         <button type="submit" class="btn btn-primary">Logout</button>
-      </form>
-    <% } else{ %>
-      <!-- login form, displayed when username is falsy -->
-      <form class="form-inline my-2 my-lg-0" action="/login" method="POST">
-        <input
-          class="form-control mr-sm-2"
-          type="text"
-          name="username"
-          placeholder="username"
-        />
-        <button type="submit" class="btn btn-primary">Login</button>
       </form>
     <% } %>
   </nav>
