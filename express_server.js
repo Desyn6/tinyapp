@@ -19,6 +19,16 @@ const generateRandomString = (length) => {
   return randomString;
 };
 
+// Searches for a value in an object, returns true if found
+const findUser = (usersObj, value) => {
+  for (const user in usersObj) {
+    for (const prop in usersObj[user]) {
+      if (usersObj[user][prop] === value) return true;
+    }
+  }
+  return false;
+};
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -56,10 +66,16 @@ app.post("/register", (req, res) => {
   const id = generateRandomString(6);
   const email = req.body.email;
   const password = req.body.password;
-  users[id] = { id, email, password};
-  res.cookie('user_id', id);
-  console.log(users);
-  res.redirect("/urls");  
+  
+  if (!email || !password) {
+    res.status(400).send('Status code 400: Please enter an e-mail address and password!');
+  } else if (findUser(users, email)){
+    res.status(400).send(`Account using ${email} already exists! Please use a different e-mail address.`);
+  } else{
+    users[id] = { id, email, password};
+    res.cookie('user_id', id);
+    res.redirect("/urls");
+  }  
 });
 
 // route to page for adding new URL
