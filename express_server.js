@@ -39,15 +39,15 @@ const users = {
 
 // route for main URL display
 app.get("/urls", (req, res) => {
-  const username = req.cookies["username"];
-  const templateVars = { urls: urlDatabase, username };
+  const user = users[req.cookies["user_id"]];
+  const templateVars = { urls: urlDatabase, user };
   res.render("urls_index", templateVars);
 });
 
 // route to registration page
 app.get("/register", (req, res) => {
-  const username = req.cookies["username"];
-  const templateVars = { username }
+  const user = users[req.cookies["user_id"]];
+  const templateVars = { user }
   res.render("user_registration", templateVars);
 });
 
@@ -64,8 +64,8 @@ app.post("/register", (req, res) => {
 
 // route to page for adding new URL
 app.get("/urls/new", (req, res) => {
-  const username = req.cookies["username"];
-  const templateVars = { username };
+  const user = users[req.cookies["user_id"]];
+  const templateVars = { user };
   res.render("urls_new", templateVars);
 });
 
@@ -86,8 +86,8 @@ app.post("/login", (req, res) => {
 
 // route to POST logout
 app.post("/logout", (req, res ) => {
-  const username = req.body.username;
-  res.clearCookie('username', username);
+  // const username = req.body.username;
+  res.clearCookie('username', users);
   res.redirect("/urls");
 });
 
@@ -122,8 +122,10 @@ app.post("/urls/:id", (req, res) => {
 // route for specific URL page, showing long URL
 app.get("/urls/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
-  const username = req.cookies["username"];
-  const templateVars = { id: req.params.id, longURL, username };
+  const user = users[req.cookies["user_id"]];
+  console.log(user);
+  console.log(users);
+  const templateVars = { id: req.params.id, longURL, user };
   res.render("urls_show", templateVars);
 });
 
