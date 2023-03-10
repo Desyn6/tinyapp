@@ -4,7 +4,11 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 // required functions and DB
-const { generateRandomString, findUser} = require('./functions');
+const { 
+  generateRandomString, 
+  findUser, 
+  loggedInRedirect 
+} = require('./functions');
 const { urlDatabase, users } = require('./database');
 
 app.use(express.urlencoded({ extended: true }));
@@ -21,23 +25,35 @@ app.get("/urls", (req, res) => {
 
 // route to registration page
 app.get("/register", (req, res) => {
-  const user = users[req.cookies["user_id"]];
-  const templateVars = { user };
-  res.render("user_registration", templateVars);
+  if (req.cookies["user_id"]) {
+    res.redirect("/urls");
+  } else {
+    const user = users[req.cookies["user_id"]];
+    const templateVars = { user };
+    res.render("user_registration", templateVars);
+  }
 });
 
 // route to registration page
 app.get("/login", (req, res) => {
-  const user = users[req.cookies["user_id"]];
-  const templateVars = { user };
-  res.render("user_login", templateVars);
+  if (req.cookies["user_id"]) {
+    res.redirect("/urls");
+  } else {
+    const user = users[req.cookies["user_id"]];
+    const templateVars = { user };
+    res.render("user_login", templateVars);
+  }
 });
 
 // route to page for adding new URL
 app.get("/urls/new", (req, res) => {
-  const user = users[req.cookies["user_id"]];
-  const templateVars = { user };
-  res.render("urls_new", templateVars);
+  if (req.cookies["user_id"]) {
+    res.redirect("/login");
+  } else {
+    const user = users[req.cookies["user_id"]];
+    const templateVars = { user };
+    res.render("urls_new", templateVars);
+  }
 });
 
 // route to redirect to URL page for editing
@@ -96,10 +112,14 @@ app.post("/register", (req, res) => {
 
 // route to receive newURL data
 app.post("/urls", (req, res) => {
-  const longURL = req.body.longURL;
-  const newShortURL = generateRandomString(6);
-  urlDatabase[newShortURL] = longURL;
-  res.redirect(`/urls/${newShortURL}`);
+  if (!req.cookies["user_id"]) {
+    res.status(403).send('You must be logged in to delete URLs!');
+  } else {
+    const longURL = req.body.longURL;
+    const newShortURL = generateRandomString(6);
+    urlDatabase[newShortURL] = longURL;
+    res.redirect(`/urls/${newShortURL}`);
+  }
 });
 
 // route to POST login
@@ -123,17 +143,25 @@ app.post("/logout", (req, res) => {
 
 // route to delete urls from urlDatabase
 app.post("/urls/:id/delete", (req, res) => {
-  const shortURL = req.params.id;
-  delete urlDatabase[shortURL];
-  res.redirect("/urls");
+  if (!req.cookies["user_id"]) {
+    res.status(403).send('You must be logged in to delete URLs!');
+  } else {
+    const shortURL = req.params.id;
+    delete urlDatabase[shortURL];
+    res.redirect("/urls");
+  }
 });
 
 // route to edit urls in urlDatabase
 app.post("/urls/:id", (req, res) => {
-  const newURL = req.body.longURL;
-  const shortURL = req.params.id;
-  urlDatabase[shortURL] = newURL;
-  res.redirect("/urls");
+  if (!req.cookies["user_id"]) {
+    res.status(403).send('You must be logged in to edit URLs!');
+  } else {
+    const newURL = req.body.longURL;
+    const shortURL = req.params.id;
+    urlDatabase[shortURL] = newURL;
+    res.redirect("/urls");
+  }
 });
 
 app.listen(PORT, () => {
