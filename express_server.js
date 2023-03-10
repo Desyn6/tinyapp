@@ -64,10 +64,14 @@ app.get("/urls/:id/edit", (req, res) => {
 
 // route for specific URL page, showing long URL
 app.get("/urls/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
-  const user = users[req.cookies["user_id"]];
-  const templateVars = { id: req.params.id, longURL, user };
-  res.render("urls_show", templateVars);
+  if (!urlDatabase[req.params.id]) {
+    res.status(404).send(`Shortened URL /urls/${req.params.id} not found.`)
+  } else {
+    const longURL = urlDatabase[req.params.id];
+    const user = users[req.cookies["user_id"]];
+    const templateVars = { id: req.params.id, longURL, user };
+    res.render("urls_show", templateVars);
+  }
 });
 
 // route to redirect /u/:id to long URL
