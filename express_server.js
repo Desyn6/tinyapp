@@ -3,31 +3,11 @@ const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = 8080; // default port 8080
 
+const { generateRandomString, findUser} = require('./functions');
+
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.set("view engine", "ejs");
-
-// Generates a random string of length as specified in input
-const generateRandomString = (length) => {
-  const charBank = "abcdefghijklmnopqrstuvwxyz1234567890";
-  let randomString = "";
-
-  for (let i = 0; i < length; i++) {
-    // access random value of charBank with Math Random, and round down
-    randomString += charBank[Math.floor(charBank.length * (Math.random()))];
-  }
-  return randomString;
-};
-
-// Searches for a value in an object, returns true if found
-const findUser = (usersObj, value) => {
-  for (const user in usersObj) {
-    for (const prop in usersObj[user]) {
-      if (usersObj[user][prop] === value) return user;
-    }
-  }
-  return false;
-};
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -151,8 +131,6 @@ app.post("/urls/:id", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   const user = users[req.cookies["user_id"]];
-  console.log(user);
-  console.log(users);
   const templateVars = { id: req.params.id, longURL, user };
   res.render("urls_show", templateVars);
 });
