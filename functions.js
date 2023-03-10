@@ -1,6 +1,6 @@
 /** Generates a random string
- *  Input: 
- *    - a number to specify lenght of random string
+  *  Input: 
+  *    - a number to specify lenght of random string
  */
 const generateRandomString = (length) => {
   const charBank = "abcdefghijklmnopqrstuvwxyz1234567890";
@@ -14,13 +14,13 @@ const generateRandomString = (length) => {
 };
 
 /** Searches for a value in a user object
- *  Input: 
- *    - an object of users
- *    - a query value as a string (perfect match required)
- * 
- *  Returns:
- *    - a string containing the user name if found
- *    - false if not found
+  *  Input: 
+  *    - an object of users
+  *    - a query value as a string (perfect match required)
+  * 
+  *  Returns:
+  *    - a string containing the user name if found
+  *    - false if not found
  */
 const findUser = (usersObj, value) => {
   for (const user in usersObj) {

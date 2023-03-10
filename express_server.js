@@ -3,29 +3,13 @@ const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = 8080; // default port 8080
 
+// required functions and DB
 const { generateRandomString, findUser} = require('./functions');
+const { urlDatabase, users } = require('./database');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.set("view engine", "ejs");
-
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-};
-
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
-  }
-};
 
 // route for main URL display
 app.get("/urls", (req, res) => {
