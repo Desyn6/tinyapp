@@ -1,6 +1,7 @@
-/** Generates a random string
-  *  Input:
-  *    - a number to specify lenght of random string
+/** Generates a random string of characters of specified length
+ *
+ * @param {number} length 
+ * @returns {string} 
  */
 const generateRandomString = (length) => {
   const charBank = "abcdefghijklmnopqrstuvwxyz1234567890";
@@ -13,14 +14,12 @@ const generateRandomString = (length) => {
   return randomString;
 };
 
-/** Searches for a value in a user object
-  *  Input:
-  *    - an object of users
-  *    - a query value as a string (perfect match required)
-  *
-  *  Returns:
-  *    - a string containing the user name if found
-  *    - false if not found
+/** Searches usersObj for a value (e.g. password or e-mail)
+ *  returns the username (string) if found, false otherwise
+ *
+ * @param {object} usersObj 
+ * @param {string} value 
+ * @returns {string or false}
  */
 const findUser = (usersObj, value) => {
   for (const user in usersObj) {
@@ -31,4 +30,20 @@ const findUser = (usersObj, value) => {
   return false;
 };
 
-module.exports = { generateRandomString, findUser };
+/** Queries urlDB for URLs belonging to userID
+ * 
+ * @param {object} urlDB
+ * @param {string} id
+ * @returns {urlObject} {shortURL: longURL}
+ */
+const urlsForUser = (urlDB, id) => {
+  const userURLs = {};
+  for (const shortURL in urlDB) {
+    if (urlDB[shortURL].userID === id) {
+      userURLs[shortURL] = urlDB[shortURL].longURL;
+    }
+  }
+  return userURLs;
+};
+
+module.exports = { generateRandomString, findUser, urlsForUser };

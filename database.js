@@ -1,18 +1,24 @@
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "USER1",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "USER2",
+  },
 };
 
 const users = {
   userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    id: "USER1",
+    email: "u1@u1.com",
+    password: "u1"
   },
   user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
+    id: "USER2",
+    email: "u2@u2.com",
+    password: "u2"
   }
 };
 
