@@ -66,7 +66,7 @@ app.post("/register", (req, res) => {
   const id = generateRandomString(6);
   const email = req.body.email;
   const password = req.body.password;
-  
+
   if (!email || !password) {
     res.status(400).send('Status code 400: Please enter an e-mail address and password!');
   } else if (findUser(users, email)){
@@ -93,11 +93,16 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${newShortURL}`);
 });
 
+// route to registration page
+app.get("/login", (req, res) => {
+  const user = users[req.cookies["user_id"]];
+  const templateVars = { user }
+  res.render("user_login", templateVars);
+});
+
 // route to POST login
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie('username', username);
-  res.redirect("/urls");
+  res.send('Placeholder for login /POST')
 });
 
 // route to POST logout
