@@ -1,5 +1,5 @@
 /** Generates a random string
-  *  Input: 
+  *  Input:
   *    - a number to specify lenght of random string
  */
 const generateRandomString = (length) => {
@@ -14,10 +14,10 @@ const generateRandomString = (length) => {
 };
 
 /** Searches for a value in a user object
-  *  Input: 
+  *  Input:
   *    - an object of users
   *    - a query value as a string (perfect match required)
-  * 
+  *
   *  Returns:
   *    - a string containing the user name if found
   *    - false if not found

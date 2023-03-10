@@ -22,14 +22,14 @@ app.get("/urls", (req, res) => {
 // route to registration page
 app.get("/register", (req, res) => {
   const user = users[req.cookies["user_id"]];
-  const templateVars = { user }
+  const templateVars = { user };
   res.render("user_registration", templateVars);
 });
 
 // route to registration page
 app.get("/login", (req, res) => {
   const user = users[req.cookies["user_id"]];
-  const templateVars = { user }
+  const templateVars = { user };
   res.render("user_login", templateVars);
 });
 
@@ -85,13 +85,13 @@ app.post("/register", (req, res) => {
 
   if (!email || !password) {
     res.status(400).send('Status code 400: Please enter an e-mail address and password!');
-  } else if (findUser(users, email)){
+  } else if (findUser(users, email)) {
     res.status(400).send(`Account using ${email} already exists! Please use a different e-mail address.`);
-  } else{
+  } else {
     users[id] = { id, email, password};
     res.cookie('user_id', id);
     res.redirect("/urls");
-  }  
+  }
 });
 
 // route to receive newURL data
@@ -116,7 +116,7 @@ app.post("/login", (req, res) => {
 });
 
 // route to POST logout
-app.post("/logout", (req, res ) => {
+app.post("/logout", (req, res) => {
   res.clearCookie('user_id', users);
   res.redirect("/login");
 });
