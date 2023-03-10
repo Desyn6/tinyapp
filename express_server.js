@@ -23,7 +23,7 @@ const generateRandomString = (length) => {
 const findUser = (usersObj, value) => {
   for (const user in usersObj) {
     for (const prop in usersObj[user]) {
-      if (usersObj[user][prop] === value) return true;
+      if (usersObj[user][prop] === value) return user;
     }
   }
   return false;
@@ -102,14 +102,21 @@ app.get("/login", (req, res) => {
 
 // route to POST login
 app.post("/login", (req, res) => {
-  res.send('Placeholder for login /POST')
+  // check for user via email
+  const user = findUser(users, req.body.email);
+  if (!user) {
+    res.status(403).send('User does not exist!');
+  } if (req.body.password !== users[user].password) {
+    res.status(403).send('Incorrect password.');
+  } else {
+    res.cookie('user_id', user).redirect("/urls");
+  }
 });
 
 // route to POST logout
 app.post("/logout", (req, res ) => {
-  // const username = req.body.username;
-  res.clearCookie('username', users);
-  res.redirect("/urls");
+  res.clearCookie('user_id', users);
+  res.redirect("/login");
 });
 
 // route to redirect /u/:id to long URL
