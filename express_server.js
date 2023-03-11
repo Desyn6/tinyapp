@@ -1,7 +1,13 @@
+// Dependencies
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const bcrypt = require('bcryptjs');
+
 const app = express();
+
+// set server defaults
 const PORT = 8080; // default port 8080
+const salt = bcrypt.genSaltSync(10);
 
 // required functions and DB
 const { 
@@ -11,6 +17,7 @@ const {
 } = require('./functions');
 const { urlDatabase, users } = require('./database');
 
+// Call dependencies
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.set("view engine", "ejs");
@@ -130,14 +137,14 @@ app.get("/hello", (req, res) => {
 app.post("/register", (req, res) => {
   const id = generateRandomString(6);
   const email = req.body.email;
-  const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(req.body.password); // hashed password
 
-  if (!email || !password) {
+  if (!email || !hashedPassword) {
     res.status(400).send('Status code 400: Please enter an e-mail address and password!');
   } else if (findUser(users, email)) {
     res.status(400).send(`Account using ${email} already exists! Please use a different e-mail address.`);
   } else {
-    users[id] = { id, email, password};
+    users[id] = { id, email, hashedPassword};
     res.cookie('user_id', id);
     res.redirect("/urls");
   }
@@ -160,9 +167,12 @@ app.post("/urls", (req, res) => {
 app.post("/login", (req, res) => {
   // check for user via email
   const user = findUser(users, req.body.email);
+  const hashedPassword = users[user].hashedPassword;
+  const inputPassword = req.body.password;
+
   if (!user) {
     res.status(403).send('User does not exist!');
-  } else if (req.body.password !== users[user].password) {
+  } else if (!bcrypt.compareSync(inputPassword, hashedPassword)) {
     res.status(403).send('Incorrect password.');
   } else {
     res.cookie('user_id', user).redirect("/urls");
