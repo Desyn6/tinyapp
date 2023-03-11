@@ -10,12 +10,12 @@ const urlDatabase = {
 };
 
 const users = {
-  userRandomID: {
+  USER1: {
     id: "USER1",
     email: "u1@u1.com",
     password: "u1"
   },
-  user2RandomID: {
+  USER2: {
     id: "USER2",
     email: "u2@u2.com",
     password: "u2"
