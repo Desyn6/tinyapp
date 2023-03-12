@@ -1,49 +1,49 @@
 // Dependencies
 const express = require("express");
-const cookieParser = require("cookie-parser");
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
-
 const app = express();
 
 // set server defaults
 const PORT = 8080; // default port 8080
-const salt = bcrypt.genSaltSync(10);
+
+// Call dependencies
+app.use(express.urlencoded({ extended: true }));
+app.set("view engine", "ejs");
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2'],
+  maxAge: 24 * 60 * 60 * 1000,
+}));
 
 // required functions and DB
-const { 
-  generateRandomString, 
-  findUser, 
+const {
+  generateRandomString,
+  findUser,
   urlsForUser
 } = require('./functions');
 const { urlDatabase, users } = require('./database');
 
-// Call dependencies
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-app.set("view engine", "ejs");
 
 // GET ROUTES BELOW
 // route for main URL display
 app.get("/urls", (req, res) => {
-  if (!req.cookies["user_id"]) {
-    res.status(403).send('Forbidden - please login or create an account!')
+  if (!req.session.user_id) {
+    res.status(403).send('Forbidden - please login or create an account!');
   } else {
-  // get full user object
-  const user = users[req.cookies["user_id"]];
-  const urls = urlsForUser(urlDatabase, user.id);
-  // templateVars NEEDS full user object
-  const templateVars = { urls, user };
-  res.render("urls_index", templateVars);
+    const user = users[req.session.user_id]; // fetch full user object
+    const urls = urlsForUser(urlDatabase, user.id); // get user's URLs
+    const templateVars = { urls, user };
+    res.render("urls_index", templateVars);
   }
 });
 
 // route to registration page
 app.get("/register", (req, res) => {
-  if (req.cookies["user_id"]) {
+  if (req.session.user_id) {
     res.redirect("/urls");
   } else {
-    // get full user object
-    const user = users[req.cookies["user_id"]];
+    const user = users[req.session.user_id]; // fetch full user object
     const templateVars = { user };
     res.render("user_registration", templateVars);
   }
@@ -51,11 +51,10 @@ app.get("/register", (req, res) => {
 
 // route to registration page
 app.get("/login", (req, res) => {
-  if (req.cookies["user_id"]) {
+  if (req.session.user_id) {
     res.redirect("/urls");
   } else {
-    // get full user object
-    const user = users[req.cookies["user_id"]];
+    const user = users[req.session.user_id]; // fetch full user object
     const templateVars = { user };
     res.render("user_login", templateVars);
   }
@@ -63,11 +62,10 @@ app.get("/login", (req, res) => {
 
 // route to page for adding new URL
 app.get("/urls/new", (req, res) => {
-  if (!req.cookies["user_id"]) {
+  if (!req.session.user_id) {
     res.redirect("/login");
   } else {
-    // get full user object
-    const user = users[req.cookies["user_id"]];
+    const user = users[req.session.user_id]; // fetch full user object
     const templateVars = { user };
     res.render("urls_new", templateVars);
   }
@@ -75,7 +73,7 @@ app.get("/urls/new", (req, res) => {
 
 // route to redirect to URL page for editing
 app.get("/urls/:id/edit", (req, res) => {
-  if (!req.cookies["user_id"]) {
+  if (!req.session.user_id) {
     res.redirect("/login");
   } else {
     const shortURL = req.params.id;
@@ -86,20 +84,20 @@ app.get("/urls/:id/edit", (req, res) => {
 // route for specific URL page, showing long URL
 app.get("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
 
   if (!urlDatabase[shortURL]) {
-    res.status(404).send(`Shortened URL /urls/${req.params.id} not found.`)
+    res.status(404).send(`Shortened URL /urls/${req.params.id} not found.`);
 
   } else if (!userID) {
-    res.status(403).send(`Forbidden - please log in if you are the owner of this shortened link.`)
+    res.status(403).send(`Forbidden - please log in if you are the owner of this shortened link.`);
 
   } else if (userID !== urlDatabase[shortURL].userID) {
-    res.status(403).send('Forbidden - incorrect credentials to view page.')
+    res.status(403).send('Forbidden - incorrect credentials to view page.');
 
   } else {
-    const longURL = urlDatabase[req.params.id].longURL;
-    const user = users[req.cookies["user_id"]];
+    const longURL = urlDatabase[req.params.id].longURL; // fetch long URL
+    const user = users[userID]; // fetch full user object
     const templateVars = { id: req.params.id, longURL, user };
     res.render("urls_show", templateVars);
   }
@@ -120,7 +118,7 @@ app.get("/urls.json", (req, res) => {
 // dev route for checking users object
 app.get("/users.json", (req, res) => {
   res.json(users);
-})
+});
 
 // home route
 app.get("/", (req, res) => {
@@ -141,24 +139,27 @@ app.post("/register", (req, res) => {
 
   if (!email || !hashedPassword) {
     res.status(400).send('Status code 400: Please enter an e-mail address and password!');
+
   } else if (findUser(users, email)) {
     res.status(400).send(`Account using ${email} already exists! Please use a different e-mail address.`);
+
   } else {
+    // write user to DB, set session cookie, redirect to urls page
     users[id] = { id, email, hashedPassword};
-    res.cookie('user_id', id);
+    req.session.user_id = id;
     res.redirect("/urls");
   }
 });
 
 // route to receive newURL data
 app.post("/urls", (req, res) => {
-  if (!req.cookies["user_id"]) {
+  if (!req.session.user_id) {
     res.status(403).send('You must be logged in to add URLs!');
   } else {
-    const userID = req.cookies["user_id"];
-    const longURL = req.body.longURL;
+    const userID = req.session.user_id; // fetch user ID
+    const longURL = req.body.longURL; // fetch submitted URL
     const newShortURL = generateRandomString(6);
-    urlDatabase[newShortURL] = { longURL, userID };
+    urlDatabase[newShortURL] = { longURL, userID }; // write to DB
     res.redirect(`/urls/${newShortURL}`);
   }
 });
@@ -172,16 +173,21 @@ app.post("/login", (req, res) => {
 
   if (!user) {
     res.status(403).send('User does not exist!');
+
   } else if (!bcrypt.compareSync(inputPassword, hashedPassword)) {
     res.status(403).send('Incorrect password.');
+
   } else {
-    res.cookie('user_id', user).redirect("/urls");
+    // Store cookie and redirect to url page
+    req.session.user_id = user;
+    res.redirect("/urls");
   }
 });
 
 // route to POST logout
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id', users);
+  // Delete cookie and redirect to login page
+  req.session.user_id = null;
   res.redirect("/login");
 });
 
@@ -190,14 +196,14 @@ app.post("/urls/:id/delete", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     res.status(404).send('Link does not exist');
   
-  } else if (!req.cookies["user_id"]) {
+  } else if (!req.session.user_id) {
     res.status(403).send('Forbidden - you must be logged in to delete URLs!');
 
-    } else if (urlDatabase[req.params.id].userID !== req.cookies["user_id"]) {
+  } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403).send('Forbidden - you can only edit your own links!');
     
   } else {
-    // Success
+    // delete URL and redirect to urls page
     const shortURL = req.params.id;
     delete urlDatabase[shortURL];
     res.redirect("/urls");
@@ -206,17 +212,18 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // route to edit urls in urlDatabase
 app.post("/urls/:id", (req, res) => {
-  console.log(urlDatabase[req.params.id].userID, req.cookies["user_id"])
+  console.log(urlDatabase[req.params.id].userID, req.session.user_id);
   if (!urlDatabase[req.params.id]) {
     res.status(404).send('Link does not exist');
 
-  } else if (!req.cookies["user_id"]) {
+  } else if (!req.session.user_id) {
     res.status(403).send('Forbidden - you must be logged in to edit URLs!');
 
-  } else if (urlDatabase[req.params.id].userID !== req.cookies["user_id"]) {
+  } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403).send('Forbidden - you can only edit your own links!');
 
-  } else {  
+  } else {
+    // Overwrite URL and redirect to urls page
     const newURL = req.body.longURL;
     const shortURL = req.params.id;
     urlDatabase[shortURL].longURL = newURL;

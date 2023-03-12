@@ -1,7 +1,7 @@
 /** Generates a random string of characters of specified length
  *
- * @param {number} length 
- * @returns {string} 
+ * @param {number} length
+ * @returns {string}
  */
 const generateRandomString = (length) => {
   const charBank = "abcdefghijklmnopqrstuvwxyz1234567890";
@@ -17,8 +17,8 @@ const generateRandomString = (length) => {
 /** Searches usersObj for a value (e.g. password or e-mail)
  *  returns the username (string) if found, false otherwise
  *
- * @param {object} usersObj 
- * @param {string} value 
+ * @param {object} usersObj
+ * @param {string} value
  * @returns {string or false}
  */
 const findUser = (usersObj, value) => {
@@ -31,7 +31,7 @@ const findUser = (usersObj, value) => {
 };
 
 /** Queries urlDB for URLs belonging to userID
- * 
+ *
  * @param {object} urlDB
  * @param {string} id
  * @returns {urlObject} {shortURL: longURL}
