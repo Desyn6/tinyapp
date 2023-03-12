@@ -19,9 +19,9 @@ app.use(cookieSession({
 // required functions and DB
 const {
   generateRandomString,
-  findUser,
+  getUser,
   urlsForUser
-} = require('./functions');
+} = require('./helpers');
 const { urlDatabase, users } = require('./database');
 
 
@@ -131,16 +131,18 @@ app.get("/hello", (req, res) => {
 });
 
 // POST ROUTES BELOW
+
 // route to POST /register
 app.post("/register", (req, res) => {
   const id = generateRandomString(6);
   const email = req.body.email;
+  const inputPassword = req.body.password;
   const hashedPassword = bcrypt.hashSync(req.body.password); // hashed password
 
-  if (!email || !hashedPassword) {
-    res.status(400).send('Status code 400: Please enter an e-mail address and password!');
+  if (!email || !inputPassword) {
+    res.status(400).send('Status code 400: Please enter both an e-mail address');
 
-  } else if (findUser(users, email)) {
+  } else if (getUser(users, email)) {
     res.status(400).send(`Account using ${email} already exists! Please use a different e-mail address.`);
 
   } else {
@@ -155,6 +157,7 @@ app.post("/register", (req, res) => {
 app.post("/urls", (req, res) => {
   if (!req.session.user_id) {
     res.status(403).send('You must be logged in to add URLs!');
+    
   } else {
     const userID = req.session.user_id; // fetch user ID
     const longURL = req.body.longURL; // fetch submitted URL
@@ -167,14 +170,16 @@ app.post("/urls", (req, res) => {
 // route to POST login
 app.post("/login", (req, res) => {
   // check for user via email
-  const user = findUser(users, req.body.email);
-  const hashedPassword = users[user].hashedPassword;
+  const user = getUser(users, req.body.email);
   const inputPassword = req.body.password;
 
   if (!user) {
-    res.status(403).send('User does not exist!');
+    return res.status(403).send('User does not exist!');
+  }
 
-  } else if (!bcrypt.compareSync(inputPassword, hashedPassword)) {
+  const hashedPassword = users[user].hashedPassword;
+
+  if (!bcrypt.compareSync(inputPassword, hashedPassword)) {
     res.status(403).send('Incorrect password.');
 
   } else {

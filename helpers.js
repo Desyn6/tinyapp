@@ -21,13 +21,14 @@ const generateRandomString = (length) => {
  * @param {string} value
  * @returns {string or false}
  */
-const findUser = (usersObj, value) => {
+const getUser = (usersObj, searchValue) => {
   for (const user in usersObj) {
     for (const prop in usersObj[user]) {
-      if (usersObj[user][prop] === value) return user;
+      const currUser = usersObj[user][prop].toLowerCase();
+      if (currUser === searchValue.toLowerCase()) return user;
     }
   }
-  return false;
+  return undefined;
 };
 
 /** Queries urlDB for URLs belonging to userID
@@ -46,4 +47,8 @@ const urlsForUser = (urlDB, id) => {
   return userURLs;
 };
 
-module.exports = { generateRandomString, findUser, urlsForUser };
+module.exports = {
+  generateRandomString,
+  getUser,
+  urlsForUser
+};
