@@ -110,15 +110,15 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
-// route for url database
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
+// // route for url database
+// app.get("/urls.json", (req, res) => {
+//   res.json(urlDatabase);
+// });
 
-// dev route for checking users object
-app.get("/users.json", (req, res) => {
-  res.json(users);
-});
+// // dev route for checking users object
+// app.get("/users.json", (req, res) => {
+//   res.json(users);
+// });
 
 // home route
 app.get("/", (req, res) => {
