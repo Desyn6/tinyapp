@@ -85,22 +85,29 @@ app.get("/urls/:id/edit", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
   const userID = req.session.user_id;
+  let user; // default state for not-logged in users
 
   if (!urlDatabase[shortURL]) {
-    res.status(404).send(`Shortened URL /urls/${req.params.id} not found.`);
-
-  } else if (!userID) {
-    res.status(403).send(`Forbidden - please log in if you are the owner of this shortened link.`);
-
+    return res.status(404).send(`Shortened URL not found.`);
+  } 
+  
+  // Catch non-owner cases
+  // frontend will hide interactions if user is not owner
+  if (!userID) {
+    // guest (Not logged in)
+    user = null;
   } else if (userID !== urlDatabase[shortURL].userID) {
-    res.status(403).send('Forbidden - incorrect credentials to view page.');
-
-  } else {
-    const longURL = urlDatabase[req.params.id].longURL; // fetch long URL
-    const user = users[userID]; // fetch full user object
-    const templateVars = { id: req.params.id, longURL, user };
-    res.render("urls_show", templateVars);
+    // guest (Other user);
+    user = { id: "otheruser", email: users[userID].email };
   }
+
+  if (userID === urlDatabase[shortURL].userID) {
+    user = users[userID]; // fetch full user object
+  }
+
+  const longURL = urlDatabase[req.params.id].longURL; // fetch long URL
+  const templateVars = { id: req.params.id, longURL, user };
+  res.render("urls_show", templateVars);
 });
 
 // route to redirect /u/:id to long URL
