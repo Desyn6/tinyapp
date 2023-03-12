@@ -2,12 +2,16 @@
 const express = require("express");
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
+const methodOverride = require('method-override');
+
+// Initialize express server
 const app = express();
 
 // set server defaults
 const PORT = 8080; // default port 8080
 
 // Call dependencies
+app.use(methodOverride('_method'));
 app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.use(cookieSession({
@@ -24,8 +28,10 @@ const {
 } = require('./helpers');
 const { urlDatabase, users } = require('./database');
 
+//////////////////////
+// GET ROUTES BELOW //
+//////////////////////
 
-// GET ROUTES BELOW
 // route for main URL display
 app.get("/urls", (req, res) => {
   if (!req.session.user_id) {
@@ -137,9 +143,11 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-// POST ROUTES BELOW
+///////////////////////
+// POST ROUTES BELOW //
+///////////////////////
 
-// route to POST /register
+// route to POST new account information
 app.post("/register", (req, res) => {
   const id = generateRandomString(6);
   const email = req.body.email;
@@ -160,7 +168,7 @@ app.post("/register", (req, res) => {
   }
 });
 
-// route to receive newURL data
+// route to POST newURL data
 app.post("/urls", (req, res) => {
   if (!req.session.user_id) {
     res.status(403).send('You must be logged in to add URLs!');
@@ -196,34 +204,12 @@ app.post("/login", (req, res) => {
   }
 });
 
-// route to POST logout
-app.post("/logout", (req, res) => {
-  // Delete cookie and redirect to login page
-  req.session.user_id = null;
-  res.redirect("/login");
-});
+//////////////////////
+// PUT ROUTES BELOW //
+//////////////////////
 
-// route to delete urls from urlDatabase
-app.post("/urls/:id/delete", (req, res) => {
-  if (!urlDatabase[req.params.id]) {
-    res.status(404).send('Link does not exist');
-  
-  } else if (!req.session.user_id) {
-    res.status(403).send('Forbidden - you must be logged in to delete URLs!');
-
-  } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
-    res.status(403).send('Forbidden - you can only edit your own links!');
-    
-  } else {
-    // delete URL and redirect to urls page
-    const shortURL = req.params.id;
-    delete urlDatabase[shortURL];
-    res.redirect("/urls");
-  }
-});
-
-// route to edit urls in urlDatabase
-app.post("/urls/:id", (req, res) => {
+// PUT route to edit urls in urlDatabase
+app.put("/urls/:id", (req, res) => {
   console.log(urlDatabase[req.params.id].userID, req.session.user_id);
   if (!urlDatabase[req.params.id]) {
     res.status(404).send('Link does not exist');
@@ -242,6 +228,40 @@ app.post("/urls/:id", (req, res) => {
     res.redirect("/urls");
   }
 });
+
+/////////////////////////
+// DELETE ROUTES BELOW //
+/////////////////////////
+
+// route to DELETE urls from urlDatabase
+app.delete("/urls/:id", (req, res) => {
+  if (!urlDatabase[req.params.id]) {
+    res.status(404).send('Link does not exist');
+  
+  } else if (!req.session.user_id) {
+    res.status(403).send('Forbidden - you must be logged in to delete URLs!');
+
+  } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
+    res.status(403).send('Forbidden - you can only edit your own links!');
+    
+  } else {
+    // delete URL and redirect to urls page
+    const shortURL = req.params.id;
+    delete urlDatabase[shortURL];
+    res.redirect("/urls");
+  }
+});
+
+// route to DELETE session cookie
+app.delete("/logout", (req, res) => {
+  // Delete cookie and redirect to login page
+  req.session.user_id = null;
+  res.redirect("/login");
+});
+
+///////////////////
+// SERVER LISTEN //
+///////////////////
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
